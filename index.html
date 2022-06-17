@@ -2,86 +2,12 @@
 
 <head>
     <title>Monster Willy</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-
-    <style>
-        .center {
-            display: block;
-            margin: auto;
-            width: 80%;
-            border: 5px solid #222222;
-            /* padding: 10px; */
-            height: 700px;
-            background-image: url('./bg.jpg');
-            background-size: 100% 100%;
-            overflow: hidden;
-        }
-        
-        .center_two {
-            margin: auto;
-            width: 80%;
-            border: 5px solid #222222;
-            padding: 10px;
-            height: 700px;
-            background-image: url('./bg2.jpg');
-            background-size: 100% 100%;
-            overflow: hidden;
-        }
-        
-        #truck {
-            position: relative;
-            margin-top: 340px;
-            width: 400px;
-            height: 240px;
-            background-image: url('./truck.png');
-            background-size: 100% 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
-    <div id="game" class="center">
-        <div id="truck"></div>
-    </div>
-
-    <script>
-        $(document).ready(function() {
-            $(document).on('keydown', function(e) {
-                e.preventDefault();
-                if (e.which == 37) {
-                    $('#truck').finish().animate({
-                        left: '-=50',
-                    });
-                } else if (e.which == 39) {
-                    $('#truck').finish().animate({
-                        left: '+=50',
-                    });
-                }
-            });
-
-            var count = 0;
-            setInterval(function() {
-                    var gameRightEdge = $('#game').offset().left + $('#game').width();
-                    var truckRightEdge = $('#truck').position().left + $("#truck").width();
-                    var bgCount = 0;
-                    if (truckRightEdge > gameRightEdge) {
-                        //swap bg
-                        console.log(count, '##:', count % 2);
-                        $("#game").toggleClass("center");
-                        $("#game").toggleClass("center_two");
-                        $('#truck').finish().animate({
-                            left: '-=' + $("#game").width(),
-                        });
-                        bgCount++;
-                    }
-                    // console.log(truckRightEdge, gameRightEdge);
-                    // console.log('here...', count);
-                    count++;
-                },
-                150);
-
-        });
-    </script>
+    <canvas id="canvas"></canvas>
+    <script src="logic.js"></script>
 </body>
 
 </html>
