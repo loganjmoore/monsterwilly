@@ -11,8 +11,14 @@ backgroundLayer2.src = './bg2.jpg';
 const truck = new Image();
 truck.src = './truck.png';
 
-let x = 0;
-let x2 = 1224;
+let x = -1224; // 0
+let x2 = 0; //1224
+
+if (false) {
+  x = 0;
+  x2 = 1224;
+}
+
 let truckX = 200;
 let truckSpeed = 30;
 
@@ -22,11 +28,21 @@ function animate() {
   ctx.drawImage(backgroundLayer2, x2, 0);
   ctx.drawImage(truck, truckX, 350, 350, 225);
 
-  if (x < backgroundLayer.width * -1) x = backgroundLayer.width - gameSpeed;
-  if (x2 < backgroundLayer2.width * -1) x2 = backgroundLayer2.width - gameSpeed;
-
-  //   if (x > backgroundLayer.width) x = backgroundLayer.width + gameSpeed;
-  //   if (x2 > backgroundLayer2.width) x2 = backgroundLayer2.width + gameSpeed;
+  if (gameSpeed > 0) {
+    if (x < backgroundLayer.width * -1) {
+      x = backgroundLayer.width - gameSpeed;
+    }
+    if (x2 < backgroundLayer2.width * -1) {
+      x2 = backgroundLayer2.width - gameSpeed;
+    }
+  } else if (gameSpeed < 0) {
+    if (x > backgroundLayer.width) {
+      x = -backgroundLayer.width - gameSpeed;
+    }
+    if (x2 > backgroundLayer2.width) {
+      x2 = -backgroundLayer2.width - gameSpeed;
+    }
+  }
 
   x -= gameSpeed;
   x2 -= gameSpeed;
@@ -39,8 +55,10 @@ document.addEventListener(
   'keydown',
   (e) => {
     if (e.code == 'ArrowRight') {
+      //   gameSpeed = 3;
       if (truckX < 550) truckX += truckSpeed;
     } else if (e.code == 'ArrowLeft') {
+      //   gameSpeed = -3;
       if (truckX > 100) truckX -= truckSpeed;
     }
   },
@@ -51,7 +69,9 @@ document.addEventListener(
   'keyup',
   (e) => {
     if (e.code == 'ArrowRight') {
+      //   gameSpeed = 0;
     } else if (e.code == 'ArrowLeft') {
+      //   gameSpeed = 0;
     }
   },
   false
