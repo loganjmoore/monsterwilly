@@ -19,7 +19,29 @@ if (gameSpeed > 0) {
   x2 = 1224;
 }
 
-let wordList = ['crash', 'up', 'down', 'dog'];
+let wordList = [
+  'crash',
+  'up',
+  'down',
+  'dog',
+  'next',
+  'stop',
+  'fast',
+  'go',
+  'slow',
+  'cat',
+  'and',
+  'chicken',
+  'puppy',
+  'fox',
+  'bird',
+  'sky',
+  'shark',
+  'park',
+  'car',
+  'truck',
+  'sun',
+];
 
 let truckX = 200;
 let truckSpeed = 40;
@@ -85,14 +107,15 @@ function play() {
   fiddler.play();
 }
 
-var timer = setTimeout(timeToGuess, 10000);
+var timer = setTimeout(timeToGuess, 30000);
 
 function timeToGuess() {
+  guessNumber = 0;
+  document.getElementById('letter_panel').innerHTML = '';
+  document.getElementById('hbox').innerHTML = '';
   var wordNum = Math.floor(Math.random() * wordList.length);
-  var word = wordList[wordNum];
+  var word = wordList[wordNum].shuffle();
   gameSpeed = 0;
-
-  console.log(word);
 
   for (var w = 0; w < word.length; w++) {
     console.log(word.charAt(w));
@@ -105,15 +128,18 @@ function timeToGuess() {
       word[w] +
       '</div></a>';
     document.getElementById('letter_panel').innerHTML += nodeString;
-    // var node = new DOMParser().parseFromString(nodeString, 'text/xml');
-    // document.getElementById('letter_panel').appendChild(node.documentElement);
+
+    var entryString =
+      "<div id='entry_" + w.toString() + "' class='entry'></div>";
+
+    document.getElementById('hbox').innerHTML += entryString;
   }
 
   //   let wordAudio = new Audio('./' + word + '.mp3').play();
   //   wordAudio.volume = 1;
   //   wordAudio.play;
 
-  setTimeout(timeToGuess, 10000);
+  setTimeout(timeToGuess, 30000);
 }
 
 let guessNumber = 1;
@@ -125,3 +151,16 @@ function guess(guess) {
   guess.style.display = 'none';
   guessNumber++;
 }
+
+String.prototype.shuffle = function () {
+  var a = this.split(''),
+    n = a.length;
+
+  for (var i = n - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
+  }
+  return a.join('');
+};
