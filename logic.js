@@ -8,11 +8,14 @@ const backgroundLayer = new Image();
 backgroundLayer.src = './bg.jpg';
 const backgroundLayer2 = new Image();
 backgroundLayer2.src = './bg2.jpg';
-const truck = new Image();
+let truck = new Image();
 truck.src = './truck.png';
+const treeStump = new Image();
+treeStump.src = './stump.png';
 
 let x = -1224; // 0
 let x2 = 0; //1224
+let guessDelay = 5000;
 
 if (gameSpeed > 0) {
   x = 0;
@@ -71,12 +74,44 @@ let wordList = [
 
 let truckX = 200;
 let truckSpeed = 40;
+let treeStumpX = CANVAS_WIDTH;
+
+let showTreeStump = false;
+
+let fxsound = false;
 
 function animate() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   ctx.drawImage(backgroundLayer, x, 0);
   ctx.drawImage(backgroundLayer2, x2, 0);
   ctx.drawImage(truck, truckX, 350, 350, 225);
+
+  if (showTreeStump) {
+    ctx.drawImage(treeStump, treeStumpX, 350, 350, 225);
+
+    if (treeStumpX >= 465) {
+      treeStumpX -= 5;
+    } else {
+      let fxcrash = new Audio('./fxcrash.mp3');
+      fxcrash.volume = 1;
+      if (!fxsound) {
+        fxcrash.play();
+        fxsound = true;
+      }
+      gameSpeed = 0;
+      console.log(truck.src);
+      truck.src = truck.src.includes('red')
+        ? './crashedredtruck.png'
+        : 'crashedgreentruck.png';
+      setTimeout(function () {
+        truck.src = './truck.png';
+        gameSpeed = 3;
+        showTreeStump = false;
+        fxsound = false;
+        treeStumpX = CANVAS_WIDTH;
+      }, 3000);
+    }
+  }
 
   if (gameSpeed > 0) {
     if (x < backgroundLayer.width * -1) {
@@ -101,31 +136,31 @@ function animate() {
 animate();
 
 // KEYBOARD EVENTS
-document.addEventListener(
-  'keydown',
-  (e) => {
-    if (e.code == 'ArrowRight') {
-      gameSpeed = 3;
-      if (truckX < 550) truckX += truckSpeed;
-    } else if (e.code == 'ArrowLeft') {
-      gameSpeed = -3;
-      if (truckX > 100) truckX -= truckSpeed;
-    }
-  },
-  false
-);
+// document.addEventListener(
+//   'keydown',
+//   (e) => {
+//     if (e.code == 'ArrowRight') {
+//       gameSpeed = 3;
+//       if (truckX < 550) truckX += truckSpeed;
+//     } else if (e.code == 'ArrowLeft') {
+//       gameSpeed = -3;
+//       if (truckX > 100) truckX -= truckSpeed;
+//     }
+//   },
+//   false
+// );
 
-document.addEventListener(
-  'keyup',
-  (e) => {
-    if (e.code == 'ArrowRight') {
-      gameSpeed = 0;
-    } else if (e.code == 'ArrowLeft') {
-      gameSpeed = 0;
-    }
-  },
-  false
-);
+// document.addEventListener(
+//   'keyup',
+//   (e) => {
+//     if (e.code == 'ArrowRight') {
+//       gameSpeed = 0;
+//     } else if (e.code == 'ArrowLeft') {
+//       gameSpeed = 0;
+//     }
+//   },
+//   false
+// );
 
 function play() {
   let fiddler = new Audio('./fiddler.mp3');
@@ -134,15 +169,18 @@ function play() {
   fiddler.play();
 }
 
-var timer = setTimeout(timeToGuess, 30000);
+var timer = setTimeout(timeToGuess, guessDelay);
 let activeWord = null;
+let wordNum = 0;
 
 function timeToGuess() {
   guessNumber = 0;
   document.getElementById('letter_panel').innerHTML = '';
   document.getElementById('hbox').innerHTML = '';
-  var wordNum = Math.floor(Math.random() * wordList.length);
+  //   var wordNum = Math.floor(Math.random() * wordList.length);
   var word = wordList[wordNum];
+  wordNum++;
+  if (wordNum >= wordList.length) wordNum = 0;
   activeWord = word;
   gameSpeed = 0;
 
@@ -158,8 +196,6 @@ function timeToGuess() {
   wordAudio.volume = 1;
   wordAudio.play;
   console.log('here and the word is ', word);
-
-  setTimeout(timeToGuess, 30000);
 }
 
 let guessNumber = 0;
@@ -179,7 +215,9 @@ function guess(guess) {
   }
 
   if (currentGuess.length == activeWord.length) {
-    isCorrect(activeWord, currentGuess);
+    if (isCorrect(activeWord, currentGuess)) {
+      setTimeout(timeToGuess, guessDelay);
+    }
     return;
   }
 
@@ -235,6 +273,8 @@ function isCorrect(correct, guess) {
     document.getElementById('letter_panel').innerHTML = '';
     gameSpeed = 3;
 
+    action(activeWord);
+
     return true;
   } else {
     let wordAudio = new Audio(failWords[responseNum]).play();
@@ -244,9 +284,20 @@ function isCorrect(correct, guess) {
     document.getElementById('letter_panel').innerHTML = '';
 
     guessNumber = 0;
-    populateLetterBank(activeWord);
+    populateLetterBank(activeWord.shuffle());
     gameSpeed = 0;
 
     return false;
+  }
+}
+
+function action(word) {
+  switch (word) {
+    case 'red':
+      truck.src = './redtruck.png';
+      break;
+    case 'crash':
+      showTreeStump = true;
+      break;
   }
 }
