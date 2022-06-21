@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 const CANVAS_WIDTH = (canvas.width = 1024);
 const CANVAS_HEIGHT = (canvas.height = 600);
 
-let gameSpeed = -3;
+let gameSpeed = 3;
 const backgroundLayer = new Image();
 backgroundLayer.src = './bg.jpg';
 const backgroundLayer2 = new Image();
@@ -41,6 +41,32 @@ let wordList = [
   'car',
   'truck',
   'sun',
+  'good',
+  'four',
+  'eat',
+  'green',
+  'brown',
+  'black',
+  'yellow',
+  'three',
+  'two',
+  'see',
+  'said',
+  'run',
+  'red',
+  'one',
+  'play',
+  'make',
+  'look',
+  'little',
+  'jump',
+  'help',
+  'funny',
+  'find',
+  'can',
+  'blue',
+  'big',
+  'away',
 ];
 
 let truckX = 200;
@@ -103,51 +129,60 @@ document.addEventListener(
 
 function play() {
   let fiddler = new Audio('./fiddler.mp3');
-  fiddler.volume = 0.2;
+  fiddler.volume = 0.1;
+  fiddler.loop = true;
   fiddler.play();
 }
 
 var timer = setTimeout(timeToGuess, 30000);
+let activeWord = null;
 
 function timeToGuess() {
   guessNumber = 0;
   document.getElementById('letter_panel').innerHTML = '';
   document.getElementById('hbox').innerHTML = '';
   var wordNum = Math.floor(Math.random() * wordList.length);
-  var word = wordList[wordNum].shuffle();
+  var word = wordList[wordNum];
+  activeWord = word;
   gameSpeed = 0;
 
-  for (var w = 0; w < word.length; w++) {
-    console.log(word.charAt(w));
-    var nodeString =
-      "<a href='#'><div class='letter' id='letter_" +
-      w.toString() +
-      "' data='" +
-      word[w] +
-      "' onclick='guess(this);'>" +
-      word[w] +
-      '</div></a>';
-    document.getElementById('letter_panel').innerHTML += nodeString;
-
-    var entryString =
-      "<div id='entry_" + w.toString() + "' class='entry'></div>";
-
-    document.getElementById('hbox').innerHTML += entryString;
+  // ensure the word is scrambled
+  var shuffledWord = word.shuffle();
+  while (shuffledWord == activeWord) {
+    shuffledWord = word.shuffle();
   }
 
-  //   let wordAudio = new Audio('./' + word + '.mp3').play();
-  //   wordAudio.volume = 1;
-  //   wordAudio.play;
+  populateLetterBank(shuffledWord);
+
+  let wordAudio = new Audio('./' + word + '.mp3').play();
+  wordAudio.volume = 1;
+  wordAudio.play;
+  console.log('here and the word is ', word);
 
   setTimeout(timeToGuess, 30000);
 }
 
-let guessNumber = 1;
+let guessNumber = 0;
 function guess(guess) {
-  console.log(guess);
+  console.log('new entry:', guessNumber);
   document.getElementById(
     'entry_' + guessNumber.toString()
   ).innerHTML = guess.getAttribute('data');
+
+  var totalEntryLetters = document.querySelectorAll('.entry').length;
+  console.log('totalentryletters:', totalEntryLetters);
+  console.log('activeword:', activeWord);
+
+  var currentGuess = '';
+  for (var i = 0; i < totalEntryLetters; i++) {
+    currentGuess += document.getElementById('entry_' + i).innerHTML;
+  }
+
+  if (currentGuess.length == activeWord.length) {
+    isCorrect(activeWord, currentGuess);
+    return;
+  }
+
   guess.style.display = 'none';
   guessNumber++;
 }
@@ -164,3 +199,54 @@ String.prototype.shuffle = function () {
   }
   return a.join('');
 };
+
+function populateLetterBank(word) {
+  for (var w = 0; w < word.length; w++) {
+    var nodeString =
+      "<a href='#'><div class='letter' id='letter_" +
+      w.toString() +
+      "' data='" +
+      word[w] +
+      "' onclick='guess(this);'>" +
+      word[w] +
+      '</div></a>';
+    document.getElementById('letter_panel').innerHTML += nodeString;
+
+    var entryString =
+      "<div id='entry_" + w.toString() + "' class='entry'></div>";
+
+    console.log('made it back to adding entryboxes..');
+
+    document.getElementById('hbox').innerHTML += entryString;
+  }
+}
+
+function isCorrect(correct, guess) {
+  var responseNum = Math.floor(Math.random() * 3);
+  const successWords = ['./amazing.mp3', './greatjob.mp3', './proud.mp3'];
+  const failWords = ['./tryagaincrash.mp3', './uhoh.mp3', './goodtry.mp3'];
+
+  if (correct == guess) {
+    let wordAudio = new Audio(successWords[responseNum]).play();
+    wordAudio.volume = 1;
+    wordAudio.play;
+
+    document.getElementById('hbox').innerHTML = '';
+    document.getElementById('letter_panel').innerHTML = '';
+    gameSpeed = 3;
+
+    return true;
+  } else {
+    let wordAudio = new Audio(failWords[responseNum]).play();
+    wordAudio.volume = 1;
+    wordAudio.play;
+    document.getElementById('hbox').innerHTML = '';
+    document.getElementById('letter_panel').innerHTML = '';
+
+    guessNumber = 0;
+    populateLetterBank(activeWord);
+    gameSpeed = 0;
+
+    return false;
+  }
+}
